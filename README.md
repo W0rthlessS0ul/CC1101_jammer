@@ -91,13 +91,13 @@ Follow these steps to flash the firmware:
 
 ## 🎉 Final Outcome
 
-![outcome](img/Standard.jpg)
+![outcome](img/outcome.jpg)
 
 ### Normal Spectrum
-![Normal Spectrum](img/normal_spctr.jpg)
+![Normal Spectrum](img/normal_spctr.gif)
 
 ### Jam Spectrum
-![Jam Spectrum](img/jam_spctr.jpg)
+![Jam Spectrum](img/jam_spctr.gif)
 
 -----
 
