@@ -85,13 +85,13 @@ Follow these steps to flash the firmware:
 
 4. Click "Flash," and once the installation is complete, **restart your board** and enjoy using your jammer!
 
-![flash](img/flash.jpg)
+![flash](img/flash.png)
 
 -----
 
 ## 🎉 Final Outcome
 
-![outcome](img/outcome.jpg)
+![outcome](img/outcome.png)
 
 ### Normal Spectrum
 ![Normal Spectrum](img/normal_spctr.gif)
