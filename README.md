@@ -34,7 +34,7 @@ This jammer is built on the **ESP32** architecture integrated with **CC1101** mo
 ## 📋 List of Components
 To bring this project to life, you will need the following components:
 1. **CC1101**🛠️
-2. **ESP32-DevKitC** *(with Type-C)* **or**  **ESP32-DevKit V1** *(with Micro USB)*⚙️
+2. **ESP32-DevKitC** *(with Type-C)* **or**  **ESP32-DevKit V1** *(with Micro USB)* ⚙️
 3. **128x64 OLED display** 📺
 4. **3 Tactile buttons** 🔘
 
