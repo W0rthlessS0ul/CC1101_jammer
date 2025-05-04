@@ -73,7 +73,7 @@ To bring this project to life, you will need the following components:
 
 ## 📦 Flash Firmware
 Follow these steps to flash the firmware:
-1. Download the firmware from the **releases** section that corresponds to your display.
+1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/CC1101_jammer/releases)** section that corresponds to your display.
 2. Navigate to **ESPWebTool**: [ESPWebTool](https://esp.huhn.me/)
 3. Arrange the files as per the table below:
 
