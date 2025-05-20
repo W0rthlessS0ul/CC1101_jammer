@@ -2,9 +2,51 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_SSD1306.h"
 #include "GyverButton.h"
+#include "WiFi.h"
+#include "WebServer.h"
+#include "EEPROM.h"
 #include "bitmap.h"
 #include "options.h"
 #include "jam.h"
+#include "html.h"
+
+void sendHtmlAndExecute(const char* htmlResponse, void (*action)() = nullptr) {
+    server.send(200, "text/html", htmlResponse);
+    if (action) action();
+}
+
+void storeEEPROMAndSet(int index, int value, int& targetVar, const char* htmlResponse) {
+    EEPROM.write(index, value);
+    EEPROM.commit();
+    targetVar = value;
+    sendHtmlAndExecute(htmlResponse);
+}
+
+void AccessPointHandler(int status) {
+    storeEEPROMAndSet(1, status, access_point, html_pls_reboot);
+    display.clearDisplay(); 
+    display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE); 
+    display.display();
+    while(true);
+}
+
+void miscFrequencyHandler() {
+    float frequency = server.arg("Value").toFloat();
+    sendHtmlAndExecute(html_frequency_jam);
+    jam(frequency);
+    updateDisplay(menu_number);
+}
+
+void KeyFobHandler() {
+    float frequency = server.arg("frequency").toFloat();
+    sendHtmlAndExecute(html_frequency_jam);
+    jam(frequency);
+    updateDisplay(menu_number);
+}
+
+void registerRoute(const char* path, void (*handler)()) {
+    server.on(path, handler);
+}
 
 void misc() {
   float frequency = 300.00;
@@ -38,9 +80,6 @@ void misc() {
     handleButton(buttPREVIOUS, -0.1, -0.01, -100.0, -0.1);
 
     if (buttOK.isSingle()) {
-      display.setCursor(0, 10);
-      display.println("Jamming Started");
-      display.display();
       jam(frequency);
       break;
     }
@@ -76,9 +115,6 @@ void keyfob() {
     buttPREVIOUS.tick();
 
     if (buttOK.isSingle()) {
-      display.clearDisplay();
-      display.drawBitmap(0, 0, bitmap_keyfob_jam, 128, 64, WHITE);
-      display.display();
       jam(keyfob_list[keyfob_menu_number]);
       break;
     }
@@ -97,6 +133,7 @@ void keyfob() {
 
 void setup() {
   Serial.begin(115200);
+  EEPROM.begin(EEPROM_SIZE);
   display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
   display.clearDisplay();
   display.display();
@@ -104,10 +141,47 @@ void setup() {
   ELECHOUSE_cc1101.getCC1101();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
+
+  for (int i = 0; i < 2; ++i) {
+      if (EEPROM.read(i) == 255) {
+          EEPROM.write(i, 0);
+      }
+  }
+
+  logo = EEPROM.read(0);
+  access_point = EEPROM.read(1);
+  if (access_point == 0) {
+      WiFi.softAP(ssid, password);
+
+      registerRoute("/", []() { sendHtmlAndExecute(html); });
+
+      registerRoute("/setting_logo", []() { sendHtmlAndExecute(html_logo_setings); });
+      registerRoute("/setting_access_point", []() { sendHtmlAndExecute(html_access_point_settings); });
+
+      registerRoute("/logo_on", []() { storeEEPROMAndSet(0, 0, logo, html); });
+      registerRoute("/logo_off", []() { storeEEPROMAndSet(0, 1, logo, html); });
+      registerRoute("/access_point_off", []() { AccessPointHandler(1); });
+
+      registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
+      registerRoute("/keyfob_jammer", []() { sendHtmlAndExecute(html_keyfob_jammer); });
+
+      registerRoute("/misc_jam", miscFrequencyHandler);
+      registerRoute("/keyfob_jam", KeyFobHandler);
+      server.begin();
+  }
+  
+  if (logo == 0) {
+      display.clearDisplay();
+      display.drawBitmap(0, 0, bitmap_logo, 128, 64, WHITE);
+      display.display();
+      delay(2000);
+  }
+
   updateDisplay(menu_number);
 }
 
 void loop() {
+  if (access_point == 0) server.handleClient();
   buttOK.tick();
   buttNEXT.tick();
   buttPREVIOUS.tick(); 
@@ -116,25 +190,29 @@ void loop() {
   }
 
   if (buttNEXT.isSingle()) {
-    menu_number = (menu_number + 1) % 2;
-    updateDisplay(menu_number);    
+    int max_menu = (access_point == 0) ? 2 : 3;
+    menu_number = (menu_number + 1) % max_menu;
+    updateDisplay(menu_number);
   }
 
   if (buttPREVIOUS.isSingle()) {
-    menu_number = (menu_number - 1) % 2;
+    int max_menu = (access_point == 0) ? 2 : 3;
+    menu_number = (menu_number - 1 + max_menu) % max_menu;
     updateDisplay(menu_number);
   }
 }
 void updateDisplay(int menuNum) {
   display.clearDisplay();
-  const uint8_t* bitmap = (menu_number == 0) ? bitmap_keyfob_jammer : bitmap_misc_jammer;
+  const uint8_t* bitmap = (menu_number == 0) ? bitmap_keyfob_jammer : 
+                          (menu_number == 1) ? bitmap_misc_jammer : bitmap_access_point;
   display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
   display.display();
 }
 void executeAction(int menuNum) {
-  switch (menu_number) {
+  switch (menuNum) {
     case 0: keyfob(); break;
     case 1: misc(); break;
+    case 2: AccessPointHandler(0); break;
   }
-  updateDisplay(menu_number);
+  updateDisplay(menuNum);
 }

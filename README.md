@@ -34,7 +34,7 @@ This jammer is built on the **ESP32** architecture integrated with **CC1101** mo
 ## 📋 List of Components
 To bring this project to life, you will need the following components:
 1. **CC1101**🛠️
-2. **ESP32-DevKitC** *(with Type-C)* **or**  **ESP32-DevKit V1** *(with Micro USB)*⚙️
+2. **ESP32-DevKitC** *(with Type-C)* **or**  **ESP32-DevKit V1** *(with Micro USB)* ⚙️
 3. **128x64 OLED display** 📺
 4. **3 Tactile buttons** 🔘
 
@@ -73,7 +73,7 @@ To bring this project to life, you will need the following components:
 
 ## 📦 Flash Firmware
 Follow these steps to flash the firmware:
-1. Download the firmware from the **releases** section that corresponds to your display.
+1. Download the firmware from the **[releases](https://github.com/W0rthlessS0ul/CC1101_jammer/releases)** section that corresponds to your display.
 2. Navigate to **ESPWebTool**: [ESPWebTool](https://esp.huhn.me/)
 3. Arrange the files as per the table below:
 
@@ -85,13 +85,25 @@ Follow these steps to flash the firmware:
 
 4. Click "Flash," and once the installation is complete, **restart your board** and enjoy using your jammer!
 
-![flash](img/flash.jpg)
+![flash](img/flash.png)
+
+-----
+
+## 🌐 Web Interface
+
+- To utilize the web interface, please follow the steps outlined below.
+1. activate the **CC1101 jammer**.
+2. Connect to the Wi-Fi network named `jammer` using the password `W0rthlessS0ul`.
+3. open your web browser and navigate to the IP address `192.168.4.1`.
+4. Now you can control your nRF24 jammer through an web interface.
+
+![web_interface](img/web_interface_.gif)
 
 -----
 
 ## 🎉 Final Outcome
 
-![outcome](img/outcome.jpg)
+![outcome](img/outcome.png)
 
 ### Normal Spectrum
 ![Normal Spectrum](img/normal_spctr.gif)

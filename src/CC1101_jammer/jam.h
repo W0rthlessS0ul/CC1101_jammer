@@ -32,6 +32,9 @@ static void cc1101initialize(void)
 }
 void jam(float frequency)
 {
+  display.clearDisplay(); 
+  display.drawBitmap(0, 0, bitmap_keyfob_jam, 128, 64, WHITE); 
+  display.display();
   ELECHOUSE_cc1101.setMHZ(frequency);
   buttOK.tick();
   while (!buttOK.isSingle()){
