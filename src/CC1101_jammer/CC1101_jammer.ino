@@ -30,16 +30,31 @@ void AccessPointHandler(int status) {
     while(true);
 }
 
+void DelayHandler(){
+    jam_delay = server.arg("Value").toInt();
+    storeEEPROMAndSet(2, jam_delay, jam_delay, html);
+}
+
+void StopHandler(){
+    jam_break = true;
+    sendHtmlAndExecute(html);
+    updateDisplay(menu_number);
+}
+
 void miscFrequencyHandler() {
     float frequency = server.arg("Value").toFloat();
-    sendHtmlAndExecute(html_frequency_jam);
+    String response = String(html_frequency_jam);
+    response.replace("|| 0", "|| " + String(jam_delay));
+    server.send(200, "text/html", response);
     jam(frequency);
     updateDisplay(menu_number);
 }
 
 void KeyFobHandler() {
     float frequency = server.arg("frequency").toFloat();
-    sendHtmlAndExecute(html_frequency_jam);
+    String response = String(html_frequency_jam);
+    response.replace("|| 0", "|| " + String(jam_delay));
+    server.send(200, "text/html", response);
     jam(frequency);
     updateDisplay(menu_number);
 }
@@ -142,7 +157,7 @@ void setup() {
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
 
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < 3; ++i) {
       if (EEPROM.read(i) == 255) {
           EEPROM.write(i, 0);
       }
@@ -150,6 +165,7 @@ void setup() {
 
   logo = EEPROM.read(0);
   access_point = EEPROM.read(1);
+  jam_delay = EEPROM.read(2);
   if (access_point == 0) {
       WiFi.softAP(ssid, password);
 
@@ -157,16 +173,19 @@ void setup() {
 
       registerRoute("/setting_logo", []() { sendHtmlAndExecute(html_logo_setings); });
       registerRoute("/setting_access_point", []() { sendHtmlAndExecute(html_access_point_settings); });
+      registerRoute("/setting_jamming_time", []() { sendHtmlAndExecute(html_jamming_time_setting); });
 
       registerRoute("/logo_on", []() { storeEEPROMAndSet(0, 0, logo, html); });
       registerRoute("/logo_off", []() { storeEEPROMAndSet(0, 1, logo, html); });
       registerRoute("/access_point_off", []() { AccessPointHandler(1); });
+      registerRoute("/editdelay", DelayHandler);
 
       registerRoute("/misc_jammer", []() { sendHtmlAndExecute(html_misc_jammer); });
       registerRoute("/keyfob_jammer", []() { sendHtmlAndExecute(html_keyfob_jammer); });
 
       registerRoute("/misc_jam", miscFrequencyHandler);
       registerRoute("/keyfob_jam", KeyFobHandler);
+      registerRoute("/stop_jamming", StopHandler);
       server.begin();
   }
   
