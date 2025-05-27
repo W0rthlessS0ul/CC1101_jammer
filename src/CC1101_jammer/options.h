@@ -24,3 +24,5 @@ WebServer server(80);
 int menu_number = 0;
 int logo;
 int access_point;
+int jam_delay;
+bool jam_break = false;

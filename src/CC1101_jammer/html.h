@@ -1,3 +1,136 @@
+const char* html_jamming_time_setting = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .input {
+            background-color: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button:focus {
+            outline: none;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .infinity {
+            color: #ff5555;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        function validateAndRedirect() {
+            var Value = parseInt(document.getElementById('Input').value);
+            
+            if (isNaN(Value) || Value < 0 || Value > 254) {
+                alert('Value must be a number between 0 and 254 seconds');
+                return;
+            }
+            location.href = `/editdelay?Value=${Value}`;
+        }
+
+        function updateHint() {
+            var value = parseInt(document.getElementById('Input').value);
+            var hint = document.getElementById('hint');
+            
+            if (value === 0) {
+                hint.innerHTML = 'Value <span class="infinity">0</span> means jamming will run <span class="infinity">∞ (infinitely)</span> until manually stopped';
+            } else {
+                hint.innerHTML = '';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Set Delay Value</h1>
+        <input id="Input" class="input" type="number" placeholder="Delay (0-254) seconds" 
+               max="254" min="0" oninput="updateHint()" />
+        <div id="hint" class="hint"></div>
+        <button class="button" onclick="validateAndRedirect()">Jam</button>
+    </div>
+    <script>
+        document.getElementById('Input').addEventListener('input', updateHint);
+    </script>
+</body>
+</html>
+)rawliteral";
 const char* html_pls_reboot = R"rawliteral(
 <!DOCTYPE html>
 <html lang="ru">
@@ -581,6 +714,7 @@ const char* html = R"rawliteral(
             <div id="settingsDropdown" class="dropdown">
                 <button onclick="location.href='/setting_logo'" class="dropdown-button hidden">Logo</button>
                 <button onclick="location.href='/setting_access_point'" class="dropdown-button hidden">Access Point</button>
+                <button onclick="location.href='/setting_jamming_time'" class="dropdown-button hidden">Jamming Time</button>
             </div>
         </div>
     </div>
@@ -674,7 +808,7 @@ const char* html_misc_jammer = R"rawliteral(
             var Value = parseFloat(document.getElementById('Input').value);
 			
             if (isNaN(Value) || Value < 300.00 || Value > 928.00) {
-                alert('Start value must be a number between 300 and 928 MHz');
+                alert('Value must be a number between 300 and 928 MHz');
                 return;
             }
             location.href = `/misc_jam?Value=${Value}`;
@@ -696,6 +830,26 @@ const char* html_frequency_jam = R"rawliteral(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const jamDelay = urlParams.get('delay') || 0;
+
+        if (jamDelay > 0) {
+            setTimeout(function() {
+                window.location.href = '/';
+            }, jamDelay * 1000);
+        }
+
+        setInterval(function() {
+            fetch('/jamming_status')
+                .then(response => response.text())
+                .then(status => {
+                    if (status === 'stopped') {
+                        window.location.href = '/';
+                    }
+                });
+        }, 2000);
+    </script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -730,6 +884,7 @@ const char* html_frequency_jam = R"rawliteral(
             display: flex;
             justify-content: center;
             align-items: center;
+			margin-bottom: 20px; 
         }
 
         .circle {
@@ -751,6 +906,23 @@ const char* html_frequency_jam = R"rawliteral(
         .circle:nth-child(3) {
             animation-delay: 0.8s;
         }
+		
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s; 
+            font-size: 16px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
 
         @keyframes pulse {
             0%, 100% {
@@ -770,6 +942,8 @@ const char* html_frequency_jam = R"rawliteral(
             <div class="circle"></div>
             <div class="circle"></div>
         </div>
+
+        <button onclick="location.href='/stop_jamming'" class="button button">Stop Jamming</button>
     </div>
 
     <script>

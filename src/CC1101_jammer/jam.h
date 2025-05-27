@@ -30,18 +30,20 @@ static void cc1101initialize(void)
   ELECHOUSE_cc1101.setPQT(0);
   ELECHOUSE_cc1101.setAppendStatus(0);
 }
-void jam(float frequency)
-{
+void jam(float frequency) {
+  unsigned long startTime = millis();
+  unsigned long duration = jam_delay * 1000;  
   display.clearDisplay(); 
-  display.drawBitmap(0, 0, bitmap_keyfob_jam, 128, 64, WHITE); 
+  display.drawBitmap(0, 0, bitmap_keyfob_jam, 128, 64, WHITE);
   display.display();
-  ELECHOUSE_cc1101.setMHZ(frequency);
-  buttOK.tick();
-  while (!buttOK.isSingle()){
+  ELECHOUSE_cc1101.setMHZ(frequency); 
+  while (true) {
+    if (access_point == 0) server.handleClient();
     buttOK.tick();
-    for (int j = 0; j < 60; j++) {
-      jamdata[j] = (byte)random(255);
-    }
+    if (buttOK.isSingle()) break;
+    if (jam_delay > 0 && millis() - startTime >= duration) break;
+    if (jam_break == true) break;
     ELECHOUSE_cc1101.SendData(jamdata, 60);
   }
+  jam_break = false;
 }
