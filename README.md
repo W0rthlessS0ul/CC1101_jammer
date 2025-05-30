@@ -6,7 +6,6 @@
 Welcome to the **CC1101 Jammer** repository! 🎉 Dive into the world of RF interference with this project based on the ESP32 and CC1101 technology.
 
 ## 📚 Table of Contents
-- [📢 Please Read](#-please-read)
 - [🚀 What Can You Do with This?](#-what-can-you-do-with-this)
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
@@ -15,11 +14,6 @@ Welcome to the **CC1101 Jammer** repository! 🎉 Dive into the world of RF inte
 - [🎉 Final Outcome](#-final-outcome)
 - [❤️ Support the project](#-support-the-project)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
-
------
-
-## 📢 Please Read
-At the moment, there are very few functions and features in this project, but if I see that someone really needs this project, then the project will continue to develop.
 
 -----
 
