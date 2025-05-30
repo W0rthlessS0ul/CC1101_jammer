@@ -1,3 +1,530 @@
+const char* html_hopper_jammer = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input {
+            background-color: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 12px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+            height: 48px;
+            box-sizing: border-box;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button:focus {
+            outline: none;
+        }
+
+        .add-button {
+            background-color: #28a745;
+            width: 50%;
+            padding: 12px;
+            font-size: 14px;
+            margin: 0 0 15px 0;
+            align-self: flex-start;
+        }
+
+        .add-button:hover {
+            background-color: #218838;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            width: 48px;
+            height: 48px;
+            padding: 0;
+            margin-left: 12px;
+            font-size: 20px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .input-wrapper {
+            flex-grow: 1;
+        }
+
+        .jam-button {
+            padding: 12px;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Set Frequency Values</h1>
+        <div id="inputs-container">
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <input class="input" type="number" placeholder="Frequency (300.00-928.00) MHz" max="928.00" min="300.00" step="0.01" />
+                </div>
+                <button class="button delete-button" onclick="removeInputField(this)" disabled>×</button>
+            </div>
+        </div>
+        <button class="button add-button" onclick="addInputField()">Add Frequency</button>
+        <button class="button jam-button" onclick="validateAndRedirect()">Jam</button>
+    </div>
+
+    <script>
+        function addInputField() {
+            const container = document.getElementById('inputs-container');
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group';
+            
+            const inputWrapper = document.createElement('div');
+            inputWrapper.className = 'input-wrapper';
+            
+            const newInput = document.createElement('input');
+            newInput.className = 'input';
+            newInput.type = 'number';
+            newInput.placeholder = 'Frequency (300.00-928.00) MHz';
+            newInput.max = '928.00';
+            newInput.min = '300.00';
+            newInput.step = '0.01';
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'button delete-button';
+            deleteButton.innerHTML = '×';
+            deleteButton.onclick = function() { removeInputField(this); };
+            
+            inputWrapper.appendChild(newInput);
+            inputGroup.appendChild(inputWrapper);
+            inputGroup.appendChild(deleteButton);
+            container.appendChild(inputGroup);
+
+            const allDeleteButtons = document.querySelectorAll('.delete-button');
+            allDeleteButtons.forEach(btn => btn.disabled = false);
+        }
+
+        function removeInputField(button) {
+            const inputGroup = button.parentElement;
+            inputGroup.remove();
+
+            const allDeleteButtons = document.querySelectorAll('.delete-button');
+            if (allDeleteButtons.length === 1) {
+                allDeleteButtons[0].disabled = true;
+            }
+        }
+
+        function validateAndRedirect() {
+            const inputs = document.querySelectorAll('.input');
+            let values = [];
+            let isValid = true;
+
+            inputs.forEach(input => {
+                const value = parseFloat(input.value);
+                if (isNaN(value) || value < 300.00 || value > 928.00) {
+                    isValid = false;
+                    input.style.boxShadow = '0 0 8px rgba(255, 0, 0, 0.5)';
+                } else {
+                    input.style.boxShadow = '';
+                    values.push(value.toFixed(2));
+                }
+            });
+
+            if (!isValid || values.length === 0) {
+                alert('All values must be numbers between 300 and 928 MHz');
+                return;
+            }
+
+            location.href = `/hopper_jam?Value=${values.join('|')}`;
+        }
+    </script>
+</body>
+</html>
+)rawliteral";
+const char* html_payload_settings = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .input {
+            background-color: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function validateAndRedirect() {
+            var Value = parseInt(document.getElementById('Value').value);
+			console.log(Value)
+            if (isNaN(Value) || Value < 1 || Value > 254) {
+                alert('Value must be a number between 1 and 254');
+                return;
+            }
+            location.href = `/payload?Value=${Value}`;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Set Payload Size</h1>
+        <input id="Value" class="input" type="number" placeholder="Payload size (1-254)" max="254" min="1" />
+        <button class="button" onclick="validateAndRedirect()">Set</button>
+    </div>
+</body>
+</html>
+)rawliteral";
+const char* html_range_jammer = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .input {
+            background-color: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function validateAndRedirect() {
+            var Start = parseFloat(document.getElementById('Start').value);
+			      var Stop = parseFloat(document.getElementById('Stop').value);
+            if (isNaN(Start) || Start < 300.00 || Start > 928.00 || isNaN(Stop) || Stop < 300.00 || Stop > 928.00) {
+                alert('Values must be a number between 300 and 928 MHz');
+                return;
+            }
+			if (Stop <= Start) {
+                alert('The stop value must be greater than the Start value. ');
+                return;
+            }
+            location.href = `/range_jam?Start=${Start}&Stop=${Stop}`;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Set Frequency Values</h1>
+        <input id="Start" class="input" type="number" placeholder="Start Frequency (300.00-928.00) MHz" max="928.00" min="300.00" />
+		<input id="Stop" class="input" type="number" placeholder="Stop Frequency (300.00-928.00) MHz" max="928.00" min="300.00" />
+        <button class="button" onclick="validateAndRedirect()">Jam</button>
+    </div>
+</body>
+</html>f
+)rawliteral";
+const char* html_step_setting = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background: #1e1e1e;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .input {
+            background-color: #333333;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            background-color: #444444;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+        }
+
+        .button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button:focus {
+            outline: none;
+        }
+    </style>
+    <script>
+        function validateAndRedirect() {
+            var Value = parseFloat(document.getElementById('Input').value);
+			
+            if (isNaN(Value) || Value < 0.01 || Value > 254) {
+                alert('Value must be a number between 0.01 and 254');
+                return;
+            }
+            location.href = `/stepinterval?Value=${Value}`;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Set Step Interval Value</h1>
+        <input id="Input" class="input" type="number" placeholder="Step (0.01-254)" max="254" min="0.01" />
+        <button class="button" onclick="validateAndRedirect()">Set</button>
+    </div>
+</body>
+</html>
+)rawliteral";
 const char* html_jamming_time_setting = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -123,7 +650,7 @@ const char* html_jamming_time_setting = R"rawliteral(
         <input id="Input" class="input" type="number" placeholder="Delay (0-254) seconds" 
                max="254" min="0" oninput="updateHint()" />
         <div id="hint" class="hint"></div>
-        <button class="button" onclick="validateAndRedirect()">Jam</button>
+        <button class="button" onclick="validateAndRedirect()">Set</button>
     </div>
     <script>
         document.getElementById('Input').addEventListener('input', updateHint);
@@ -709,19 +1236,23 @@ const char* html = R"rawliteral(
 
         <div class="buttons">
             <button onclick="location.href='/keyfob_jammer'" class="button">KeyFob jammer</button>
-            <button onclick="location.href='/misc_jammer'" class="button">Misc jammer</button>
+            <button onclick="location.href='/spot_jammer'" class="button">Spot jammer</button>
+            <button onclick="location.href='/range_jammer'" class="button">Range jammer</button>
+            <button onclick="location.href='/hopper_jammer'" class="button">Hopper jammer</button>
             <button class="button settings-button" onclick="toggleDropdown()">Settings</button>
             <div id="settingsDropdown" class="dropdown">
                 <button onclick="location.href='/setting_logo'" class="dropdown-button hidden">Logo</button>
                 <button onclick="location.href='/setting_access_point'" class="dropdown-button hidden">Access Point</button>
                 <button onclick="location.href='/setting_jamming_time'" class="dropdown-button hidden">Jamming Time</button>
+                <button onclick="location.href='/setting_range_step'" class="dropdown-button hidden">Range Step</button>
+                <button onclick="location.href='/setting_payload_size'" class="dropdown-button hidden">Payload Size</button>
             </div>
         </div>
     </div>
 </body>
 </html>
 )rawliteral";
-const char* html_misc_jammer = R"rawliteral(
+const char* html_spot_jammer = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -811,7 +1342,7 @@ const char* html_misc_jammer = R"rawliteral(
                 alert('Value must be a number between 300 and 928 MHz');
                 return;
             }
-            location.href = `/misc_jam?Value=${Value}`;
+            location.href = `/spot_jam?Value=${Value}`;
         }
     </script>
 </head>

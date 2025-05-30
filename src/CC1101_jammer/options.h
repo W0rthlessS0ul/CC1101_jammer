@@ -16,13 +16,15 @@ int gdo2 = 4;
 #define SCREEN_HEIGHT 64
 #define EEPROM_SIZE 512
 //unchangeable parameters
-byte jamdata[60];
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 WebServer server(80); 
+byte* jamdata;
 int menu_number = 0;
 int logo;
 int access_point;
 int jam_delay;
+float range_step;
 bool jam_break = false;
+byte payload;

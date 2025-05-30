@@ -109,8 +109,17 @@ Follow these steps to flash the firmware:
 ### Normal Spectrum
 ![Normal Spectrum](img/normal_spctr.gif)
 
-### Jam Spectrum
-![Jam Spectrum](img/jam_spctr.gif)
+### Jam KeyFob
+![Jam Spectrum](img/jam_keyfob.gif)
+
+### Jam Spot
+![Jam Spot](img/jam_spot.gif)
+
+### Jam Range
+![Jam Range](img/jam_range.gif)
+
+### Jam Hopper
+![Jam Range](img/jam_hopper.gif)
 
 -----
 
