@@ -30,12 +30,17 @@ This jammer is built on the **ESP32** architecture integrated with **CC1101** mo
 To bring this project to life, you will need the following components:
 1. **CC1101**🛠️
 2. **ESP32-DevKitC** *(with Type-C)* **or**  **ESP32-DevKit V1** *(with Micro USB)* ⚙️
-3. **128x64 OLED display** 📺
-4. **3 Tactile buttons** 🔘
+3. **128x64 or 128x32 OLED display** 📺 *(Not required when using the "without OLED" version)*
+4. **3 Tactile buttons** 🔘 *(Not required when using the "without OLED" version)*
 
 -----
 
 ## 🧑‍🔧 Let's Get Started with Soldering!
+
+<details>
+<summary><strong>With OLED</strong></summary>
+
+<div style="margin-left: 20px;">
 
 ### CC1101 Connection
 | **Pin Name** | **ESP32 GPIO** |
@@ -63,6 +68,29 @@ To bring this project to life, you will need the following components:
 | OK           | GPIO 12        |
 | NEXT         | GPIO 14        |
 | PREVIOUS     | GPIO 13        |
+
+</div>
+</details>
+
+<details>
+<summary><strong>Without OLED</strong></summary>
+
+<div style="margin-left: 20px;">
+
+### CC1101 Connection
+| **Pin Name** | **ESP32 GPIO** |
+|--------------|----------------|
+| VCC          | 3.3V           |
+| GND          | GND            |
+| SCK          | GPIO 18        |
+| MISO         | GPIO 19        |
+| MOSI         | GPIO 23        |
+| CSN          | GPIO 5         |
+| GDO0         | GPIO 2         |
+| GDO2         | GPIO 4         |
+
+</div>
+</details>
 
 -----
 
