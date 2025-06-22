@@ -25,7 +25,7 @@ void storeEEPROMAndSet(int index, int value, int& targetVar, const char* htmlRes
 void AccessPointHandler(int status) {
     storeEEPROMAndSet(1, status, access_point, html_pls_reboot);
     display.clearDisplay(); 
-    display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 64, WHITE); 
+    display.drawBitmap(0, 0, bitmap_pls_reboot, 128, 32, WHITE); 
     display.display();
     while(true);
 }
@@ -286,7 +286,7 @@ void range() {
 
 void keyfob() {
   int keyfob_menu_number = 0;
-  const int display_lines = 6;
+  const int display_lines = 3;
 
   auto display_info = [&](int selected_idx) {
     display.clearDisplay();
@@ -348,6 +348,10 @@ void setup() {
       }
   }
 
+  buttOK.setClickTimeout(200);
+  buttNEXT.setClickTimeout(200);
+  buttPREVIOUS.setClickTimeout(200);
+
   logo = EEPROM.read(0);
   access_point = EEPROM.read(1);
   jam_delay = EEPROM.read(2);
@@ -387,7 +391,7 @@ void setup() {
   
   if (logo == 0) {
       display.clearDisplay();
-      display.drawBitmap(0, 0, bitmap_logo, 128, 64, WHITE);
+      display.drawBitmap(0, 0, bitmap_logo, 128, 32, WHITE);
       display.display();
       delay(2000);
   }
@@ -422,7 +426,7 @@ void updateDisplay(int menuNum) {
                           (menu_number == 1) ? bitmap_spot_jammer : 
                           (menu_number == 2) ? bitmap_range_jammer :
                           (menu_number == 3) ? bitmap_hopper_jammer : bitmap_access_point;
-  display.drawBitmap(0, 0, bitmap, 128, 64, WHITE);
+  display.drawBitmap(0, 0, bitmap, 128, 32, WHITE);
   display.display();
 }
 void executeAction(int menuNum) {
