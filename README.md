@@ -6,6 +6,7 @@
 Welcome to the **CC1101 Jammer** repository! 🎉 Dive into the world of RF interference with this project based on the ESP32 and CC1101 technology.
 
 ## 📚 Table of Contents
+- [🎯 Possible Additions](#possible-additions)
 - [🚀 What Can You Do with This?](#-what-can-you-do-with-this)
 - [📋 List of Components](#-list-of-components)
 - [🧑‍🔧 Let's Get Started with Soldering!](#-lets-get-started-with-soldering)
@@ -14,6 +15,17 @@ Welcome to the **CC1101 Jammer** repository! 🎉 Dive into the world of RF inte
 - [🎉 Final Outcome](#-final-outcome)
 - [❤️ Support the project](#-support-the-project)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
+
+-----
+
+## 🎯 Possible Additions
+- **Recording and playback of more than just RAW files**
+- **Auto-tuning sampling interval**
+- **Spectrum Scanner**
+- **RollJam**
+- **Change the direction of the project beyond just jammer**
+
+***`If you have the capability to assist with these features, please feel free to create pull requests!`***
 
 -----
 
@@ -142,6 +154,12 @@ Follow these steps to flash the firmware:
 
 ### Jam Hopper
 ![Jam Range](img/jam_hopper.gif)
+
+-----
+
+## 🙏 Acknowledgments
+
+- [mcore1976](https://github.com/mcore1976) - **The original creator of the [cc1101-tool](https://github.com/mcore1976/cc1101-tool) repository (from where the principle of signal reception was taken)**
 
 -----
 
