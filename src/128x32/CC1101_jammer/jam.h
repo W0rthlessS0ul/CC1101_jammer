@@ -54,13 +54,13 @@ void range_jam(float start_frequency, float stop_frequency, float step, byte pay
   display.display();
   while (true){
     for (float frequency = start_frequency; frequency <= stop_frequency; frequency+=step){
-    buttOK.tick();
-    if (access_point == 0) server.handleClient();
-    if (buttOK.isSingle()) jam_break = true;
-    if (jam_delay > 0 && millis() - startTime >= duration) jam_break = true;
-    if (jam_break == true) break;
-    ELECHOUSE_cc1101.setMHZ(frequency);
-    ELECHOUSE_cc1101.SendData(jamdata, payload);
+      buttOK.tick();
+      if (access_point == 0) server.handleClient();
+      if (buttOK.isSingle()) jam_break = true;
+      if (jam_delay > 0 && millis() - startTime >= duration) jam_break = true;
+      if (jam_break == true) break;
+      ELECHOUSE_cc1101.setMHZ(frequency);
+      ELECHOUSE_cc1101.SendData(jamdata, payload);
     }
     if (jam_break == true) break;
   }
