@@ -13,6 +13,7 @@ Welcome to the **CC1101 Jammer** repository! 🎉 Dive into the world of RF inte
 - [📦 Flash Firmware](#-flash-firmware)
 - [🌐 Web Interface](#-web-interface)
 - [🎉 Final Outcome](#-final-outcome)
+- [🙏 Acknowledgments](#-acknowledgments)
 - [❤️ Support the project](#-support-the-project)
 - [🌐 Follow Me for Updates](#-follow-me-for-updates)
 
